@@ -56,4 +56,3 @@ export default class CardContainer extends React.Component {
         );
     }
 }
-
