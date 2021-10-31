@@ -1,5 +1,5 @@
 import React from 'react';
-import { jnjectStripe, StriperProvider, Elements, CardElement } from 'react-stripe-elements';
+import { jnjectStripe, StriperProvider, Elements, CardElement, injectStripe } from 'react-stripe-elements';
 
 const INITIALSTATE = "INITIAL", SUCCESSSTATE = "COMPLETE", FAILEDSTATE = "FAILED";
 class CreditCardForm extends React.Component{
@@ -10,6 +10,15 @@ class CreditCardForm extends React.Component{
         };
     }
     renderCreditCardInformation() {
+
+        const style = {
+            base: {
+                'fontSize': '20px',
+                'color': '#495057',
+                'fontFamily': 'apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif'
+            }
+        };
+
         const usersavedcard = <div>
             <div className="form-row text-center">
                 <button type="button" className="btn btn-outline-success text-center mx-auto">Use saved card?</button>
@@ -24,18 +33,80 @@ class CreditCardForm extends React.Component{
             </label>        
         </div>;
         // 뷰 반환
-
-        const style = {
-            base: {
-                'fontSize': '20px',
-                'color': '#495057',
-                'fontFamily': 'apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif'
-            }
-        };
-
+        return (
+            <div>
+                {usersavedcard}
+                <h5 className="mb-4">Payment Info</h5>
+                <form onSubmit={this.handleSubmit}>
+                    <div className="form-row">
+                        <div className="col-lg-12 form-group">
+                            <label htmlFor="cc-name">Name On Card:</label>
+                            <input id="cc-name" name='cc-name' className="form-control" placeholder='Name on Card' onChange={this.handleInputChange} type='text' />
+                        </div>
+                    </div>
+                    <div className="form-row">
+                        <div className="col-lg-12 form-group">
+                            <label htmlFor="card">Card Information:</label>
+                            <CardElement id="card" className="form-control" style={style} />
+                        </div>
+                    </div>
+                    {remembercardcheck}
+                    <hr className="mb-4" />
+                    <button type="submit" className="btn btn-success btn-large" >{this.props.operation}</button>
+                </form>
+            </div>
+        );
     }
-    renderSuccess() {}
-    renderFailure() {}
+
+    renderSuccess() {
+        return (
+            <div>
+                <h5 className="mb-4 text-success">Request Successfull</h5>
+                <button tpye="submit" className="btn btn-success btn-large" onClick={() => {this.props.toggle() }}>OK</button>
+            </div>
+        );
+    }
+    renderFailure() {
+        return (
+            <div>
+                <h5 className="mb-4 text-danger"> Credit card Information invalid, try again or exit</h5>
+                {this.renderCreditCardInformation()}
+            </div>
+        );
+    }
+
+    async handleSubmit(event) {
+        event.preventDefault();
+        console.log("Handle submit called, with name: " + this.state.value);
+        // Strip API를 통해 발급
+        let { token } = await this.props.stripe.createToken({ name: this.state.value});
+        if (token == null) {
+            console.log("invalid token");
+            this.setState({ status: FAILEDSTATE });
+            return;
+        }
+        let reponse = await fetch("/charge", {
+            method: "POST",
+            headers: { "Content-Type": "text/plain"},
+            body: JSON.stringify({
+                token: token.id,
+                operation: this.props.operation,
+            })
+        });
+        console.log(reponse.ok);
+        if (reponse.ok) {
+            console.log("Purchase Complete!");
+            this.setState({ status: SUCCESSSTATE});
+        }
+    }
+
+
+    handleInputChange(event) {
+        this.setState({
+            value: event.target.value
+        })
+    }
+
     render() {
         let body = null;
         switch (this.state.status) {
@@ -48,25 +119,24 @@ class CreditCardForm extends React.Component{
             default:
                 body = this.renderCreditCardInformation();
         }
-        return (
-            <div>
-                <h5 className="mb-4">Payment Info</h5>
-                <form>
-                    <div className="form-row">
-                        <div className="col-lg-12 form-group">
-                          <label htmlFor="cc-name">Name On Card:</label>
-                          <input id="cc-name" name='cc-name' className="form-control" placeholder='Name on Card' onChange={this.handleInputChange} type='text' />
-                        </div>
-                    </div>
-                    <div className="form-row">
-                      <div className="col-lg-12 form-group">
-                      <label htmlFor="card">Card Information:</label>
-                      <CardElement id="card" className="form-control" style={style} />
-                      </div>
-                    </div>
-                </form>
-            </div>
-        );
+
     }
+}
+export default function CreditCardInformation(props) {
+    if(!props.show) {
+        return <div/>;
+    }
+    // 스트라이프 API를 사용해 CreditCardForm를 추가하면 createToken() 메서드를 호출할 수 있다.
+    const CCFormWithStripe = injectStripe(CreditCardForm);
+    return (
+        <div>
+            {/*stripe provider*/}
+            <StripeProvider apiKey="pk_test_LwL4RUtinpP3PXzYirX2jNfR">
+                <Elements>
+                    <CCFormWithStripe operation={props.operation} />
+                </Elements>
+            </StripeProvider>
+        </div>
+    )   
 }
 

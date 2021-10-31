@@ -1,5 +1,6 @@
 import React from 'react';
 import { Modal, ModalHeader, ModalBody } from 'reactstrap';
+import CreditCardInformation from './CreditCards';
 
 export function BuyModalWindow(props){
         return (
@@ -9,7 +10,8 @@ export function BuyModalWindow(props){
                         Buy Item
                     </ModalHeader>
                     <ModalBody>
-                        {/* 신용카드 결제 폼 */}
+                    {/* 신용카드 결제 폼 */}
+                    <CreditCardInformation show={true} opertation="Charge" toggle={props.toggle} />
                     </ModalBody>
                 </div>
             </Modal>
