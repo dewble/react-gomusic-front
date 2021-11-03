@@ -2,6 +2,8 @@ import React from 'react';
 import { Modal, ModalHeader, ModalBody } from 'reactstrap';
 import CreditCardInformation from './CreditCards';
 
+
+// 로그인 폼 컴포넌트
 class SignInForm extends React.Component{
     constructor(){
         super(this.props);
@@ -62,7 +64,8 @@ class SignInForm extends React.Component{
     }
 }
 
-class Registeration extends React.Component{
+// 가입 폼 컴포넌트
+class RegistrationForm extends React.Component{
     constructor(){
         super(this.props);
         this.handleSubmit = this.handleSubmit.bind(this);
@@ -91,7 +94,6 @@ class Registeration extends React.Component{
         let message = null;
         if (this.state.errormessage.length !== 0) {
             message = <h5 className="mb-4 text-danger">{this.state.errormessage}</h5>;
-
         }
         return (
             <div>
@@ -100,7 +102,7 @@ class Registeration extends React.Component{
                     <h5 className="mb-4">Registration</h5>
                     <div className="form-group">
                         <label htmlFor="username">User Name:</label>
-                        <input id="username" name='username' className="form-control" placeholder='John Doe' type='text'  onChange={this.handleChange} />
+                        <input id="username" name='username' className="form-control" placeholder='Your name' type='text'  onChange={this.handleChange} />
                     </div>
 
                     <div className="form-group">
@@ -122,6 +124,44 @@ class Registeration extends React.Component{
                     </div>
                 </form>
             </div>
+        );
+    }
+}
+
+// 로그인 폼을 포함하는 부모 모달 윈도우
+export class SignInModalWindow extends React.Component{
+    constructor(props) {
+        super(props);
+        this.state = {
+            showRegistrationForm: false
+        };
+        this.handleNewUser = this.handleNewUser.bind(this)
+    }
+
+    handleNewUser() {
+        this.setState({
+            showRegistrationForm: true
+        });
+    }
+    render() {
+        let modalBody = <SingInForm handleNewUser={this.handleNewUser} />
+        if (this.state.showRegistrationForm === true) {
+            modalBody = <RegistrationForm />
+        }
+        return (
+            <Modal id="register" tabIndex="-1" role="dialog" isOpen={this.props.showModal} toggle={this.props.toggle}>
+            <div role="document">
+                <ModalHeader toggle={this.props.toggle} className="bg-success text-white">
+                    Sign in
+                    {/*<button className="close">
+                        <span aria-hidden="true">&times;</span>
+                     </button>*/}
+                </ModalHeader>
+                <ModalBody>
+                    {modalBody}
+                </ModalBody>
+            </div>
+        </Modal>
         );
     }
 }
