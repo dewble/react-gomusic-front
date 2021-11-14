@@ -28,19 +28,20 @@ export default class Navigation extends React.Component{
         
         return (
             <div>
-                <nav className="navbar navbar-expand-lg navbar-dark bgsuccess fixed-top">
+                <nav className="navbar navbar-expand-lg navbar-dark bg-success fixed-top">
                     <div className="container">
                         {/* 로그인한 사용자에게 표시할 탐색 메뉴*/} 
                         {
-                            this.props.user.loggedin ? this.buildLoggedInMenu() : <button type="button" className="navbarbrand order-1 btn btn-sucess" onClick={()=> {this.props.showModalWindow();}}>Sign in </button>
+                            this.props.user.loggedin ? this.buildLoggedInMenu() : <button type="button" className="navbar-brand order-1 btn btn-success"  onClick={() => { this.props.showModalWindow();}}>Sign in</button>
                         }
                         <div className="navbar-collapse" id="navbarNavAltMarkup">
                             <div className="navbar-nav">
-                                <NavLink className="nav-time nav-link" to="/">Home</NavLink>
-                                <NavLink className="nav-time nav-link" to="/promos">Promotions</NavLink>
+                                <NavLink className="nav-item nav-link" to="/">Home</NavLink>
+                                <NavLink className="nav-item nav-link" to="/promos">Promotions</NavLink>
                                 {/*주문 내역 페이지로 이동하는 링크 추가*/} 
                                 {this.props.user.loggedin ? <NavLink className="nav-item nav-link" to="/myorders">My Orders</NavLink> : null}
-                                <NavLink className="nav-time nav-link" to="/about">About</NavLink>
+                                <NavLink className="nav-item nav-link" to="/about">About</NavLink>
+
                             </div>
                         </div>
                     </div>

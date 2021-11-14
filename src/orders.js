@@ -1,11 +1,10 @@
 import React from 'react';
-import { render } from 'react-dom';
 
 function Order(props) {
     return (
         <div className="col-12">
             <div className="card text-center">
-                <div className="cardheader"><h5>{props.productname}</h5></div>
+                <div className="card-header"><h5>{props.productname}</h5></div>
                 <div className="card-body">
                     <div className="row">
                         <div className="mx-auto col-6">
@@ -25,10 +24,10 @@ function Order(props) {
             </div>
             <div className="mt-3" />
         </div>
-    )
+    );
 }
 
-export default class OrderContainer extends React.Component{
+export default class OrderContainer extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -36,12 +35,22 @@ export default class OrderContainer extends React.Component{
         };
     }
 
+    componentDidMount() {
+        fetch(this.props.location)
+            .then(res => res.json())
+            .then((result) => {
+                this.setState({
+                    orders: result.orders
+                });
+            });
+    }
+
     render() {
+
         return (
-            <div className="row mt-t">
-                {this.state.orders.map(order => <Order key={order.id}{...order}/>)}
+            <div className="row mt-5">
+                {this.state.orders.map(order => <Order {...order} />)}
             </div>
         );
     }
 }
-
